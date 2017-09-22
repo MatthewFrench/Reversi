@@ -21,7 +21,7 @@
     background: #ffa09c;
 }
 
-.CheckerHidden {
+.DiskHidden {
     display: none;
 }
 
@@ -38,7 +38,7 @@
     position: relative;
 }
 
-.Checker {
+.Disk {
     position: absolute;
     top: 5%;
     left: 5%;
@@ -48,10 +48,10 @@
     border: solid 1px black;
     box-shadow: 2px 2px 2px #535353;
 }
-.RedChecker {
+.RedDisk {
     background-color: red;
 }
-.BlackChecker {
+.BlackDisk {
     background-color: black;
 }
 
@@ -59,7 +59,7 @@
   background-color: yellow !important;
 }
 
-.Checker.Highlight {
+.Disk.Highlight {
   border: 3px solid yellow;
 }
 

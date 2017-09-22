@@ -72,7 +72,8 @@ class GameDataLogic {
    */
   checkSlide(moves, x, y) {
     // Check square is on grid
-    if (x < 0 || x > 9 || y < 0 || y > 9) return;
+    if (x < 0 || x > this.state.board[0].length
+      || y < 0 || y > this.state.board.length) return;
     // check square is unoccupied
     if (this.getPiece(x, y)) return;
     // legal move!  Add it to the move list
