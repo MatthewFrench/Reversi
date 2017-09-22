@@ -9,6 +9,7 @@ class CanvasBoard {
     this.messageDiv = null;
     this.gameDataLogic = new GameDataLogic();
 
+    /*
     this.highlightCheckerX = null;
     this.highlightCheckerY = null;
 
@@ -17,6 +18,7 @@ class CanvasBoard {
 
     this.mouseX = null;
     this.mouseY = null;
+    */
 
     window.addEventListener('resize', Utility.CreateFunction(this, this.windowResize));
     window.requestAnimationFrame(()=>{this.windowResize();});
@@ -68,6 +70,7 @@ class CanvasBoard {
 
   mouseDown(event) {
     //Get mouse position
+    /*
     let x = this.getCanvasMouseX(event);
     let y = this.getCanvasMouseY(event);
 
@@ -81,6 +84,7 @@ class CanvasBoard {
       this.dragCheckerX = x;
       this.dragCheckerY = y;
     }
+    */
 
     //Redraw
     this.renderBoard();
@@ -88,6 +92,7 @@ class CanvasBoard {
 
   mouseUp(event) {
     //Get mouse position
+    /*
     let dropX = this.getCanvasMouseX(event);
     let dropY = this.getCanvasMouseY(event);
 
@@ -128,6 +133,7 @@ class CanvasBoard {
     this.dragCheckerY = null;
     this.highlightCheckerY = null;
     this.highlightCheckerX = null;
+*/
 
     //Redraw
     this.renderBoard();
@@ -143,14 +149,14 @@ class CanvasBoard {
 
   updateGameStatusMessage() {
     let victory = this.gameDataLogic.checkForVictory();
-    if (victory == null) {
-      if (this.gameDataLogic.getTurn() == 'b') {
+    if (victory === null) {
+      if (this.gameDataLogic.getTurn() === 'b') {
         this.setMessage('Black\'s Turn');
       } else {
         this.setMessage('White\'s Turn');
       }
     } else {
-      if (victory == 'black wins') {
+      if (victory === 'black wins') {
         this.setMessage('Black has Won!');
       } else {
         this.setMessage('White has Won!');
@@ -164,6 +170,7 @@ class CanvasBoard {
    */
   hoverOverChecker(event) {
     //Get mouse position
+    /*
     let x = this.getCanvasMouseX(event);
     let y = this.getCanvasMouseY(event);
 
@@ -178,7 +185,7 @@ class CanvasBoard {
       this.highlightCheckerX = x;
       this.highlightCheckerY = y;
     }
-
+*/
     //Redraw
     this.renderBoard();
   }
@@ -214,15 +221,25 @@ class CanvasBoard {
    */
   renderBoard() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    let moves = this.gameDataLogic.getAllLegalMovesForColor(this.gameDataLogic.getTurn());
+
     for (let y = 0; y < this.gameDataLogic.state.board.length; y+=1) {
       for (let x = 0; x < this.gameDataLogic.state.board[y].length; x+=1) {
         if ((x+y) % 2 !== 0) {
           this.ctx.fillStyle = 'gray';
           this.ctx.fillRect(x * 100, y * 100, 100, 100);
         }
+        for (let move of moves) {
+          if (move.landingX == x && move.landingY == y) {
+            this.ctx.fillStyle = 'yellow';
+            this.ctx.fillRect(x * 100, y * 100, 100, 100);
+            break;
+          }
+        }
           let piece = this.gameDataLogic.getPiece(x, y);
-          if (piece &&
-            !(this.dragCheckerX === x && this.dragCheckerY === y)) {
+          if (piece /*&&
+            !(this.dragCheckerX === x && this.dragCheckerY === y)*/) {
             if (piece === "w" || piece === "wk") {
               this.ctx.fillStyle = 'white';
             } else if (piece === "b" || piece === "bk") {
@@ -235,7 +252,7 @@ class CanvasBoard {
             this.ctx.lineWidth = 1;
             this.ctx.stroke();
             //Draw kings
-            if (piece.indexOf('k') != -1) {
+            if (piece.indexOf('k') !== -1) {
               this.ctx.fillStyle = 'red';
               this.ctx.textAlign = 'center';
               this.ctx.font="20px Arial";
@@ -245,19 +262,22 @@ class CanvasBoard {
       }
     }
     //Draw the highlighted checker
-    if (this.dragCheckerX != null) {
+    /*
+    if (this.dragCheckerX !== null) {
       this.highlightCheckerX = this.dragCheckerX;
       this.highlightCheckerY = this.dragCheckerY;
     }
-    if (this.highlightCheckerX != null) {
+     */
+    /*
+    if (this.highlightCheckerX !== null) {
       let x = this.highlightCheckerX;
-      let y = this.highlightCheckerY
+      let y = this.highlightCheckerY;
       // Get legal moves
       let moves = this.gameDataLogic.getLegalMoves(this.gameDataLogic.state.board[y][x], x, y);
       // mark checker to move
       this.ctx.fillStyle = 'yellow';
-      if (this.dragCheckerY != this.highlightCheckerY ||
-          this.dragCheckerX != this.highlightCheckerX) {
+      //if (this.dragCheckerY !== this.highlightCheckerY ||
+      //    this.dragCheckerX !== this.highlightCheckerX) {
         this.ctx.strokeStyle = 'black';
         this.ctx.beginPath();
         this.ctx.arc(x*100 + 50, y * 100 + 50, 40, 40, 0, Math.PI * 2);
@@ -265,13 +285,13 @@ class CanvasBoard {
         this.ctx.stroke();
         let piece = this.gameDataLogic.getPiece(this.highlightCheckerX, this.highlightCheckerY);
         //Draw kings
-        if (piece.indexOf('k') != -1) {
+        if (piece.indexOf('k') !== -1) {
           this.ctx.fillStyle = 'red';
           this.ctx.textAlign = 'center';
           this.ctx.font="20px Arial";
           this.ctx.fillText('King', x * 100 + 50, y * 100 + 50);
         }
-      }
+      //}
       // Mark squares available for moves
       moves.forEach(Utility.CreateFunction(this, function (move) {
         if (move.type === 'slide') {
@@ -286,8 +306,10 @@ class CanvasBoard {
         }
       }));
     }
+    */
     //Draw the dragged checker
-    if (this.dragCheckerX != null) {
+    /*
+    if (this.dragCheckerX !== null) {
       let piece = this.gameDataLogic.getPiece(this.dragCheckerX, this.dragCheckerY);
       if (piece === "w" || piece === "wk") {
         this.ctx.fillStyle = 'white';
@@ -301,7 +323,7 @@ class CanvasBoard {
       this.ctx.stroke();
 
       //Draw kings
-      if (piece.indexOf('k') != -1) {
+      if (piece.indexOf('k') !== -1) {
         this.ctx.fillStyle = 'red';
         this.ctx.textAlign = 'center';
         this.ctx.fontSize = '20px';
@@ -309,5 +331,6 @@ class CanvasBoard {
         this.ctx.fillText('King', this.mouseX, this.mouseY);
       }
     }
+    */
   }
 }

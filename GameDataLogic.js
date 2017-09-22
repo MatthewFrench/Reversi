@@ -1,3 +1,14 @@
+Direction = {
+  Up : 0,
+  Down : 1,
+  Left : 2,
+  Right: 3,
+  UpLeft: 4,
+  UpRight: 5,
+  DownLeft: 6,
+  DownRight: 7
+};
+
 class GameDataLogic {
   constructor() {
     /** The state of the game */
@@ -22,43 +33,147 @@ class GameDataLogic {
   }
 
   doesPieceBelongToPlayer(x, y) {
-    var piece = this.getPiece(x, y);
+    let piece = this.getPiece(x, y);
     return (piece != null && piece.charAt(0) === this.state.turn);
   }
 
-
-  /** @function getLegalMoves
-   * returns a list of legal moves for the specified
-   * piece to make.
-   * @param {String} piece - 'b' or 'w' for black or white pawns,
-   *    'bk' or 'wk' for white or black kings.
-   * @param {integer} x - the x position of the piece on the board
-   * @param {integer} y - the y position of the piece on the board
-   * @returns {Array} the legal moves as an array of objects.
+  /**
+   * Returns an array of all legal moves on the board for a color.
+   * @param color
+   * @returns {Array}
    */
-  getLegalMoves(piece, x, y) {
-    var moves = [];
-    switch (piece) {
-      case 'b': // black can only move down the board diagonally
-        this.checkSlide(moves, x - 1, y - 1);
-        this.checkSlide(moves, x + 1, y - 1);
-        this.checkJump(moves, {captures: [], landings: []}, piece, x, y);
-        break;
-      case 'w':  // white can only move up the board diagonally
-        this.checkSlide(moves, x - 1, y + 1);
-        this.checkSlide(moves, x + 1, y + 1);
-        this.checkJump(moves, {captures: [], landings: []}, piece, x, y);
-        break;
-      case 'bk': // kings can move diagonally any direction
-      case 'wk': // kings can move diagonally any direction
-        this.checkSlide(moves, x - 1, y + 1);
-        this.checkSlide(moves, x + 1, y + 1);
-        this.checkSlide(moves, x - 1, y - 1);
-        this.checkSlide(moves, x + 1, y - 1);
-        this.checkJump(moves, {captures: [], landings: []}, piece, x, y);
-        break;
+  getAllLegalMovesForColor(color) {
+    let moves = [];
+    for (let y = 0; y < this.state.board.length; y++) {
+      for (let x = 0; x < this.state.board[y].length; x++) {
+        let piece = this.getPiece(x, y);
+        if (piece === color) {
+          this.addLegalMovesForPieceToArray(moves, piece, x, y);
+        }
+      }
     }
     return moves;
+  }
+
+  /** @function addLegalMovesForPieceToArray
+   * Adds a list of legal moves for the specified
+   * piece to make.
+   *
+   * Return format:
+   * [{
+   *    originX - Start X
+   *    originY - Start Y
+   *    originPiece - Piece Color
+   *    direction - Direction Number
+   *    captured [ - Array of captured pieces
+   *        {
+   *          capturedX,
+   *          capturedY
+   *        }
+   *    ],
+   *    landingX - Final X,
+   *    landingY - Final Y
+   * }]
+   *
+   */
+  addLegalMovesForPieceToArray(moves, piece, x, y) {
+    this.addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, Direction.Up);
+    this.addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, Direction.Down);
+    this.addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, Direction.Left);
+    this.addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, Direction.Right);
+    this.addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, Direction.UpRight);
+    this.addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, Direction.UpLeft);
+    this.addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, Direction.DownRight);
+    this.addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, Direction.DownLeft);
+  }
+
+  addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, direction) {
+    let move = {
+      originX : x,
+      originY : y,
+      originPiece: piece,
+      direction : direction,
+      captured : [],
+      landingX: null,
+      landingY: null
+    };
+
+    let currentX = x;
+    let currentY = y;
+    let isCompleted = false;
+    while (isCompleted === false) {
+      currentX = this.getNextXLocation(currentX, direction);
+      currentY = this.getNextYLocation(currentY, direction);
+
+      if (this.isPositionOnBoard(currentX, currentY) === false) {
+        isCompleted = true;
+        break;
+      }
+      //If space is empty, we need to end
+      if (this.isSpaceEmpty(currentX, currentY)) {
+        //If we captured a piece, set the landing
+        if (move.captured.length > 0) {
+          move.landingX = currentX;
+          move.landingY = currentY;
+        }
+        isCompleted = true;
+        break;
+      }
+      //If space is self, we need to end
+      if (this.getPiece(currentX, currentY) === piece) {
+        isCompleted = false;
+      } else {
+        //We ran over a piece that is not ourselves, lets capture it
+        move.captured.push({x: currentX, y: currentY});
+      }
+    }
+
+    //If the move has a landing, it is valid so add it
+    if (move.landingX != null) {
+      moves.push(move);
+    }
+  }
+
+  isPositionOnBoard(x, y) {
+    return (x >= 0 && y >= 0 &&
+      y <= this.state.board.length - 1 &&
+      x <= this.state.board[y].length - 1);
+  }
+
+  isSpaceEmpty(x, y) {
+    return this.getPiece(x,y) === null;
+  }
+
+  getNextXLocation(x, direction) {
+    switch (direction) {
+      case Direction.DownLeft:
+      case Direction.UpLeft:
+      case Direction.Left:
+        x -= 1;
+        break;
+      case Direction.DownRight:
+      case Direction.UpRight:
+      case Direction.Right:
+        x += 1;
+        break;
+    }
+    return x;
+  }
+
+  getNextYLocation(y, direction) {
+    switch (direction) {
+      case Direction.UpRight:
+      case Direction.UpLeft:
+      case Direction.Up:
+        y -= 1;
+        break;
+      case Direction.DownRight:
+      case Direction.DownLeft:
+      case Direction.Down:
+        y += 1;
+        break;
+    }
+    return y;
   }
 
   /** @function checkSlide
@@ -124,7 +239,6 @@ class GameDataLogic {
         break;
       case 'bk': // kings can move diagonally any direction
       case 'wk': // kings can move diagonally any direction
-        console.log('Jumps: ' + JSON.stringify(jumps));
         this.checkLanding(moves, this.copyJumps(jumps), piece, x - 1, y + 1, x - 2, y + 2);
         this.checkLanding(moves, this.copyJumps(jumps), piece, x + 1, y + 1, x + 2, y + 2);
         this.checkLanding(moves, this.copyJumps(jumps), piece, x - 1, y - 1, x - 2, y - 2);
