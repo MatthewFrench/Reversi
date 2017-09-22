@@ -5,16 +5,14 @@ class GameDataLogic {
       over: false,
       turn: 'b',
       board: [
-        [null, 'w', null, 'w', null, 'w', null, 'w', null, 'w'],
-        ['w', null, 'w', null, 'w', null, 'w', null, 'w', null],
-        [null, 'w', null, 'w', null, 'w', null, 'w', null, 'w'],
-        ['w', null, 'w', null, 'w', null, 'w', null, 'w', null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, 'b', null, 'b', null, 'b', null, 'b', null, 'b'],
-        ['b', null, 'b', null, 'b', null, 'b', null, 'b', null],
-        [null, 'b', null, 'b', null, 'b', null, 'b', null, 'b'],
-        ['b', null, 'b', null, 'b', null, 'b', null, 'b', null]
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, 'w', 'b', null, null, null],
+        [null, null, null, 'b', 'w', null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null]
       ]
     };
   }
@@ -72,8 +70,8 @@ class GameDataLogic {
    */
   checkSlide(moves, x, y) {
     // Check square is on grid
-    if (x < 0 || x > this.state.board[0].length
-      || y < 0 || y > this.state.board.length) return;
+    if (x < 0 || x > this.state.board[0].length - 1
+      || y < 0 || y > this.state.board.length - 1) return;
     // check square is unoccupied
     if (this.getPiece(x, y)) return;
     // legal move!  Add it to the move list
@@ -91,7 +89,7 @@ class GameDataLogic {
     var newJumps = {
       landings: jumps.landings.slice(),
       captures: jumps.captures.slice()
-    }
+    };
     return newJumps;
   }
 
@@ -224,8 +222,8 @@ class GameDataLogic {
   checkForVictory() {
     var wCount = 0;
     var bCount = 0;
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 10; x++) {
+    for (let y = 0; y < this.state.board.length; y++) {
+      for (let x = 0; x < this.state.board[y].length; x++) {
         if (this.getPiece(x, y) === "w" || this.getPiece(x, y) === "wk") {
           wCount++;
         }

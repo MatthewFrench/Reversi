@@ -19,6 +19,7 @@ class CanvasBoard {
     this.mouseY = null;
 
     window.addEventListener('resize', Utility.CreateFunction(this, this.windowResize));
+    window.requestAnimationFrame(()=>{this.windowResize();});
   }
 
   /**
@@ -52,8 +53,8 @@ class CanvasBoard {
     this.canvas.addEventListener('mousemove', Utility.CreateFunction(this, this.hoverOverChecker));
     this.canvas.addEventListener('mousedown', Utility.CreateFunction(this, this.mouseDown));
     this.canvas.addEventListener('mouseup', Utility.CreateFunction(this, this.mouseUp));
-    this.canvas.width = 1000;
-    this.canvas.height = 1000;
+    this.canvas.width = this.gameDataLogic.state.board[0].length * 100;
+    this.canvas.height = this.gameDataLogic.state.board.length * 100;
     this.containerDiv.appendChild(this.canvas);
     document.body.appendChild(this.messageDiv);
     document.body.appendChild(this.containerDiv);
@@ -213,11 +214,12 @@ class CanvasBoard {
    */
   renderBoard() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    for (let y = 0; y < 10; y+=1) {
-      for (let x = 0; x < 10; x+=1) {
+    for (let y = 0; y < this.gameDataLogic.state.board.length; y+=1) {
+      for (let x = 0; x < this.gameDataLogic.state.board[y].length; x+=1) {
         if ((x+y) % 2 !== 0) {
           this.ctx.fillStyle = 'gray';
           this.ctx.fillRect(x * 100, y * 100, 100, 100);
+        }
           let piece = this.gameDataLogic.getPiece(x, y);
           if (piece &&
             !(this.dragCheckerX === x && this.dragCheckerY === y)) {
@@ -226,9 +228,12 @@ class CanvasBoard {
             } else if (piece === "b" || piece === "bk") {
               this.ctx.fillStyle = 'black';
             }
+            this.ctx.strokeStyle = 'black';
             this.ctx.beginPath();
             this.ctx.arc(x*100 + 50, y * 100 + 50, 40, 40, 0, Math.PI * 2);
             this.ctx.fill();
+            this.ctx.lineWidth = 1;
+            this.ctx.stroke();
             //Draw kings
             if (piece.indexOf('k') != -1) {
               this.ctx.fillStyle = 'red';
@@ -237,7 +242,6 @@ class CanvasBoard {
               this.ctx.fillText('King', x * 100 + 50, y * 100 + 50);
             }
           }
-        }
       }
     }
     //Draw the highlighted checker
@@ -254,9 +258,11 @@ class CanvasBoard {
       this.ctx.fillStyle = 'yellow';
       if (this.dragCheckerY != this.highlightCheckerY ||
           this.dragCheckerX != this.highlightCheckerX) {
+        this.ctx.strokeStyle = 'black';
         this.ctx.beginPath();
         this.ctx.arc(x*100 + 50, y * 100 + 50, 40, 40, 0, Math.PI * 2);
         this.ctx.fill();
+        this.ctx.stroke();
         let piece = this.gameDataLogic.getPiece(this.highlightCheckerX, this.highlightCheckerY);
         //Draw kings
         if (piece.indexOf('k') != -1) {
