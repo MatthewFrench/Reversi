@@ -18,6 +18,10 @@ class CanvasBoard {
 
     this.moves = [];
 
+    this.flippingPieces = [];
+
+    this.existingAnimationRequest = null;
+
     window.addEventListener('resize', Utility.CreateFunction(this, this.windowResize));
     window.requestAnimationFrame(()=>{this.windowResize();});
 
@@ -95,6 +99,14 @@ class CanvasBoard {
       if (move.landingX === x && move.landingY === y) {
         this.gameDataLogic.applyMove(move);
         appliedMoves += 1;
+        //Add all captured pieces to the flipping array
+        for (let capture of move.captured) {
+          let flip = {x: capture.x, y: capture.y, percent: 0.0,
+            from: this.gameDataLogic.getTurn() === 'b' ? 'w' : 'b',
+            to: this.gameDataLogic.getTurn()
+          };
+          this.flippingPieces.push(flip);
+        }
       }
     }
     //Next turn if we made a move
@@ -225,19 +237,59 @@ class CanvasBoard {
     for (let y = 0; y < this.gameDataLogic.state.board.length; y+=1) {
       for (let x = 0; x < this.gameDataLogic.state.board[y].length; x+=1) {
           let piece = this.gameDataLogic.getPiece(x, y);
-          if (piece /*&&
-            !(this.dragCheckerX === x && this.dragCheckerY === y)*/) {
-            if (piece === "w" || piece === "wk") {
-              this.ctx.fillStyle = 'white';
-            } else if (piece === "b" || piece === "bk") {
-              this.ctx.fillStyle = 'black';
+          let isFlipping = false;
+          let flippingPiece = null;
+          for (let flip of this.flippingPieces) {
+            if (flip.x === x && flip.y === y) {
+              isFlipping = true;
+              flippingPiece = flip;
+
+              break;
             }
-            this.ctx.strokeStyle = 'black';
-            this.ctx.beginPath();
-            this.ctx.arc(x*100 + 50, y * 100 + 50, 40, 40, 0, Math.PI * 2);
-            this.ctx.fill();
-            this.ctx.lineWidth = 1;
-            this.ctx.stroke();
+          }
+          if (piece) {
+            if (isFlipping) {
+              //Draw the flipping piece to animate it
+              let fromPiece = flippingPiece.from;
+              let animationPercent = flippingPiece.percent;
+              if (fromPiece === "w") {
+                if (animationPercent < 0.5) {
+                  this.ctx.fillStyle = 'white';
+                } else {
+                  this.ctx.fillStyle = 'black';
+                }
+              } else {
+                if (animationPercent < 0.5) {
+                  this.ctx.fillStyle = 'black';
+                } else {
+                  this.ctx.fillStyle = 'white';
+                }
+              }
+              let heightPercent = 0.0;
+              if (animationPercent < 0.5) {
+                heightPercent = 1.0 - animationPercent * 2;
+              } else {
+                heightPercent = 1.0 - ((1.0 - animationPercent) * 2);
+              }
+              this.ctx.strokeStyle = 'black';
+              this.ctx.beginPath();
+              this.ctx.ellipse(x*100 + 50, y * 100 + 50, 40, 40 * heightPercent, 0, 0, Math.PI * 2);
+              this.ctx.fill();
+              this.ctx.lineWidth = 1;
+              this.ctx.stroke();
+            } else {
+              if (piece === "w" || piece === "wk") {
+                this.ctx.fillStyle = 'white';
+              } else if (piece === "b" || piece === "bk") {
+                this.ctx.fillStyle = 'black';
+              }
+              this.ctx.strokeStyle = 'black';
+              this.ctx.beginPath();
+              this.ctx.arc(x*100 + 50, y * 100 + 50, 40, 40, 0, Math.PI * 2);
+              this.ctx.fill();
+              this.ctx.lineWidth = 1;
+              this.ctx.stroke();
+            }
           }
       }
     }
@@ -344,6 +396,23 @@ class CanvasBoard {
           }
         }
       }
+    }
+    if (this.flippingPieces.length > 0) {
+      //Loop through flipping pieces
+      for (let flip of this.flippingPieces) {
+        flip.percent += 1.0 / 25.0;
+      }
+      //Remove all finished flips
+      this.flippingPieces = this.flippingPieces.filter( function(flip) {
+        return flip.percent <= 1.0;
+      });
+
+      //Redraw on next frame for animations
+      if (this.existingAnimationRequest !== null) {
+        window.cancelAnimationFrame(this.existingAnimationRequest);
+        this.existingAnimationRequest = null;
+      }
+      this.existingAnimationRequest = window.requestAnimationFrame(()=>{this.renderBoard();});
     }
   }
 
