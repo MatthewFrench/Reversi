@@ -14,6 +14,9 @@ class GamePage {
     this.canvasBoard.setShowGuidelines(showGuidelines);
     this.canvasBoard.setPlayMode(playMode);
     this.canvasBoard.renderBoard();
+    if (playMode === PlayMode.AIVsAI) {
+      this.canvasBoard.runAI();
+    }
   }
 
   /**

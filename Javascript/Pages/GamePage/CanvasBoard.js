@@ -105,6 +105,22 @@ class CanvasBoard {
     let x = this.getCanvasMouseX(event);
     let y = this.getCanvasMouseY(event);
 
+    let allowDoStuff = false;
+    if (this.playMode === PlayMode.PlayerVsPlayer) {
+      allowDoStuff = true;
+    }
+    if (this.playMode === PlayMode.PlayerVsAI && this.gameDataLogic.getTurn() === 'b') {
+      allowDoStuff = true;
+    }
+    if (allowDoStuff) {
+      this.applyMovesOn(x, y);
+    }
+
+    //Redraw
+    this.renderBoard();
+  }
+
+  applyMovesOn(x, y) {
     //Apply all valid moves
     let appliedMoves = 0;
     for (let move of this.moves) {
@@ -113,7 +129,8 @@ class CanvasBoard {
         appliedMoves += 1;
         //Add all captured pieces to the flipping array
         for (let capture of move.captured) {
-          let flip = {x: capture.x, y: capture.y, percent: 0.0,
+          let flip = {
+            x: capture.x, y: capture.y, percent: 0.0,
             from: this.gameDataLogic.getTurn() === 'b' ? 'w' : 'b',
             to: this.gameDataLogic.getTurn()
           };
@@ -123,10 +140,70 @@ class CanvasBoard {
     }
     //Next turn if we made a move
     if (appliedMoves > 0) {
-      this.gameDataLogic.nextTurn();
-      this.getMoves();
-      this.updateGameStatusMessage();
+      this.nextTurn();
     }
+  }
+
+  nextTurn() {
+    this.gameDataLogic.nextTurn();
+    this.getMoves();
+    this.updateGameStatusMessage();
+    if ((this.playMode === PlayMode.PlayerVsAI &&
+      this.gameDataLogic.getTurn() === 'w') ||
+      this.playMode === PlayMode.AIVsAI) {
+      this.runAI()
+    }
+  }
+
+  runAI() {
+    //Loop through entire grid and find the landing
+    //With the most benefit
+    let bestLandingX = -1;
+    let bestLandingY = -1;
+    let bestCaptureCount = 0;
+    for (let y = 0; y < this.gameDataLogic.state.board.length; y+=1) {
+      for (let x = 0; x < this.gameDataLogic.state.board[y].length; x += 1) {
+        let captureCount = 0;
+        for (let move of this.moves) {
+          if (move.landingX === x && move.landingY === y) {
+            captureCount += 1;
+          }
+        }
+        //If there is a corner piece, take it like a mad man.
+        if (captureCount > 0 && ((x === 0 && y ===0) ||
+            (x === 0 &&
+                y === this.gameDataLogic.state.board.length - 1) ||
+            (x === this.gameDataLogic.state.board[0].length - 1 &&
+                y === 0) ||
+            (x === this.gameDataLogic.state.board[0].length - 1 &&
+                y === this.gameDataLogic.state.board.length - 1))) {
+          bestCaptureCount = 15;
+          bestLandingX = x;
+          bestLandingY = y;
+        } else {
+          //Add a slight randomness so no AI choice is the same.
+          if ((captureCount >= bestCaptureCount && Math.random() > 0.5) ||
+            captureCount > bestCaptureCount) {
+            bestCaptureCount = captureCount;
+            bestLandingX = x;
+            bestLandingY = y;
+          }
+        }
+      }
+    }
+
+    //Give AI a delay so it isn't instant
+    setTimeout(()=>{
+      this.highlightDiskX = bestLandingX;
+      this.highlightDiskY = bestLandingY;
+      //Redraw
+      this.renderBoard();
+      setTimeout(()=>{
+        this.applyMovesOn(bestLandingX, bestLandingY);
+        //Redraw
+        this.renderBoard();
+      }, 500);
+    }, this.showGuidelines ? 500 : 250);
 
     //Redraw
     this.renderBoard();
@@ -144,10 +221,20 @@ class CanvasBoard {
     this.highlightDiskX = null;
     this.highlightDiskY = null;
 
-    for (let move of this.moves) {
-      if (move.landingX === x && move.landingY === y) {
-        this.highlightDiskX = x;
-        this.highlightDiskY = y;
+
+    let allowDoStuff = false;
+    if (this.playMode === PlayMode.PlayerVsPlayer) {
+      allowDoStuff = true;
+    }
+    if (this.playMode === PlayMode.PlayerVsAI && this.gameDataLogic.getTurn() === 'b') {
+      allowDoStuff = true;
+    }
+    if (allowDoStuff) {
+      for (let move of this.moves) {
+        if (move.landingX === x && move.landingY === y) {
+          this.highlightDiskX = x;
+          this.highlightDiskY = y;
+        }
       }
     }
 
