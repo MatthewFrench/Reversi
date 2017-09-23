@@ -9,32 +9,21 @@ Direction = {
   DownRight: 7
 };
 
-class GameDataLogic {
+/**
+ * Handles manipulation of game data.
+ */
+class GameLogic {
   constructor() {
     /** The state of the game */
-    this.state = {
-      over: false,
-      turn: 'b',
-      board: [
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, 'w', 'b', null, null, null],
-        [null, null, null, 'b', 'w', null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null]
-      ]
-    };
+    this.state = new GameState();
   }
 
+  /**
+   * Returns the active turn.
+   * @returns {*}
+   */
   getTurn() {
-    return this.state.turn;
-  }
-
-  doesPieceBelongToPlayer(x, y) {
-    let piece = this.getPiece(x, y);
-    return (piece != null && piece.charAt(0) === this.state.turn);
+    return this.state.getTurn();
   }
 
   /**
@@ -44,8 +33,8 @@ class GameDataLogic {
    */
   getAllLegalMovesForColor(color) {
     let moves = [];
-    for (let y = 0; y < this.state.board.length; y++) {
-      for (let x = 0; x < this.state.board[y].length; x++) {
+    for (let y = 0; y < this.state.getBoard().length; y++) {
+      for (let x = 0; x < this.state.getBoard()[y].length; x++) {
         let piece = this.getPiece(x, y);
         if (piece === color) {
           this.addLegalMovesForPieceToArray(moves, piece, x, y);
@@ -87,6 +76,14 @@ class GameDataLogic {
     this.addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, Direction.DownLeft);
   }
 
+  /**
+   * Adds legal moves for a piece and direction to the moves array.
+   * @param moves
+   * @param piece
+   * @param x
+   * @param y
+   * @param direction
+   */
   addLegalMovesForPieceInDirectionToArray(moves, piece, x, y, direction) {
     let move = {
       originX : x,
@@ -102,8 +99,8 @@ class GameDataLogic {
     let currentY = y;
     let isCompleted = false;
     while (isCompleted === false) {
-      currentX = this.getNextXLocation(currentX, direction);
-      currentY = this.getNextYLocation(currentY, direction);
+      currentX = GameLogic.getNextXLocation(currentX, direction);
+      currentY = GameLogic.getNextYLocation(currentY, direction);
 
       if (this.isPositionOnBoard(currentX, currentY) === false) {
         isCompleted = true;
@@ -130,22 +127,40 @@ class GameDataLogic {
     }
 
     //If the move has a landing, it is valid so add it
-    if (move.landingX != null) {
+    if (move.landingX !== null) {
       moves.push(move);
     }
   }
 
+  /**
+   * Returns true if the position is on the board.
+   * @param x
+   * @param y
+   * @returns {boolean}
+   */
   isPositionOnBoard(x, y) {
     return (x >= 0 && y >= 0 &&
-      y <= this.state.board.length - 1 &&
-      x <= this.state.board[y].length - 1);
+      y <= this.state.getBoard().length - 1 &&
+      x <= this.state.getBoard()[y].length - 1);
   }
 
+  /**
+   * Returns true if the space is empty.
+   * @param x
+   * @param y
+   * @returns {boolean}
+   */
   isSpaceEmpty(x, y) {
     return this.getPiece(x,y) === null;
   }
 
-  getNextXLocation(x, direction) {
+  /**
+   * Returns the next x position in the given direction.
+   * @param x
+   * @param direction
+   * @returns {*}
+   */
+  static getNextXLocation(x, direction) {
     switch (direction) {
       case Direction.DownLeft:
       case Direction.UpLeft:
@@ -161,7 +176,13 @@ class GameDataLogic {
     return x;
   }
 
-  getNextYLocation(y, direction) {
+  /**
+   * Returns the next y position in the given direction.
+   * @param y
+   * @param direction
+   * @returns {*}
+   */
+  static getNextYLocation(y, direction) {
     switch (direction) {
       case Direction.UpRight:
       case Direction.UpLeft:
@@ -177,12 +198,24 @@ class GameDataLogic {
     return y;
   }
 
+  /**
+   * Returns the piece at the location.
+   * @param x
+   * @param y
+   * @returns {*}
+   */
   getPiece(x, y) {
-    return this.state.board[y][x];
+    return this.state.getBoard()[y][x];
   }
 
+  /**
+   * Sets the piece at the location.
+   * @param x
+   * @param y
+   * @param value
+   */
   setPiece (x, y, value) {
-    this.state.board[y][x] = value;
+    this.state.getBoard()[y][x] = value;
   }
 
   /** @function ApplyMove
@@ -204,11 +237,11 @@ class GameDataLogic {
    * has yet won.
    */
   checkForVictory() {
-    var wCount = 0;
-    var bCount = 0;
-    var emptyCount = 0;
-    for (let y = 0; y < this.state.board.length; y++) {
-      for (let x = 0; x < this.state.board[y].length; x++) {
+    let wCount = 0;
+    let bCount = 0;
+    let emptyCount = 0;
+    for (let y = 0; y < this.state.getBoard().length; y++) {
+      for (let x = 0; x < this.state.getBoard()[y].length; x++) {
         let piece = this.getPiece(x, y);
         if (piece === "w") {
           wCount++;
@@ -223,10 +256,10 @@ class GameDataLogic {
     }
     if (emptyCount === 0) {
       if (wCount > bCount) {
-        this.state.over = true;
+        this.state.setOver(true);
         return 'white wins';
       } else if (bCount > wCount) {
-        this.state.over = true;
+        this.state.setOver(true);
         return 'black wins';
       } else {
         return 'draw';
@@ -237,10 +270,10 @@ class GameDataLogic {
       let blackMoves = this.getAllLegalMovesForColor('b');
       if (whiteMoves.length === 0 && blackMoves.length === 0) {
         if (wCount > bCount) {
-          this.state.over = true;
+          this.state.setOver(true);
           return 'white wins';
         } else if (bCount > wCount) {
-          this.state.over = true;
+          this.state.setOver(true);
           return 'black wins';
         } else {
           return 'draw';
@@ -256,16 +289,16 @@ class GameDataLogic {
    * turn property of state.
    */
   nextTurn() {
-    if (this.state.turn === 'b') {
+    if (this.state.getTurn() === 'b') {
       let whiteMoves = this.getAllLegalMovesForColor('w');
       if (whiteMoves.length > 0) {
-        this.state.turn = 'w';
+        this.state.setTurn('w');
       }
     }
     else {
       let blackMoves = this.getAllLegalMovesForColor('b');
       if (blackMoves.length > 0) {
-        this.state.turn = 'b';
+        this.state.setTurn('b');
       }
     }
   }

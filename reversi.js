@@ -1,16 +1,16 @@
-// checkers.js
-var currentBoard = null;
+var reversiGame = null;
 
 /** @function main
  * Entry point to the program.
- * Starts the checkers game.
+ * Starts the game.
  */
 function main() {
-  currentBoard = new CanvasBoard();
-  currentBoard.setupCanvas();
+  reversiGame = new ReversiGame();
+  document.body.appendChild(reversiGame.getDiv());
+  reversiGame.show();
 }
 
-//Initializes either a web canvas or the console canvas
+//Initializes the game
 window.onload = function () {
   main();
 };

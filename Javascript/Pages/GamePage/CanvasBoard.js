@@ -2,22 +2,25 @@
  * Handles all canvas drawing logic.
  */
 class CanvasBoard {
-  constructor() {
+  constructor(gamePage) {
+    this.gamePage = gamePage;
+    this.mainDiv = document.createElement('div');
+    this.mainDiv.className = 'CanvasBoardDiv';
     this.ctx = null;
     this.canvas = null;
     this.containerDiv = null;
     this.messageDiv = null;
-    this.gameDataLogic = new GameDataLogic();
+    this.gameDataLogic = new GameLogic();
 
     this.highlightDiskX = null;
     this.highlightDiskY = null;
 
     this.moves = [];
-    this.mouseX = null;
-    this.mouseY = null;
 
     window.addEventListener('resize', Utility.CreateFunction(this, this.windowResize));
     window.requestAnimationFrame(()=>{this.windowResize();});
+
+    this.setupCanvas();
   }
 
   /**
@@ -54,8 +57,8 @@ class CanvasBoard {
     this.canvas.width = this.gameDataLogic.state.board[0].length * 100;
     this.canvas.height = this.gameDataLogic.state.board.length * 100;
     this.containerDiv.appendChild(this.canvas);
-    document.body.appendChild(this.messageDiv);
-    document.body.appendChild(this.containerDiv);
+    this.mainDiv.appendChild(this.messageDiv);
+    this.mainDiv.appendChild(this.containerDiv);
     this.ctx = this.canvas.getContext('2d');
 
     this.windowResize();
@@ -67,10 +70,17 @@ class CanvasBoard {
     this.updateGameStatusMessage();
   }
 
+  /**
+   * Gets the current legal moves for the turn.
+   */
   getMoves() {
     this.moves = this.gameDataLogic.getAllLegalMovesForColor(this.gameDataLogic.getTurn());
   }
 
+  /**
+   * Handles mouse down logic.
+   * @param event
+   */
   mouseDown(event) {
     let x = this.getCanvasMouseX(event);
     let y = this.getCanvasMouseY(event);
@@ -117,8 +127,11 @@ class CanvasBoard {
     this.renderBoard();
   }
 
-  mouseUp(event) {
-
+  /**
+   * Handles the mouse up event.
+   * @param event
+   */
+  mouseUp() {
     //Redraw
     this.renderBoard();
   }
@@ -131,6 +144,9 @@ class CanvasBoard {
     this.messageDiv.innerText = text;
   }
 
+  /**
+   * Updates the top message.
+   */
   updateGameStatusMessage() {
     let victory = this.gameDataLogic.checkForVictory();
     if (victory === null) {
@@ -159,7 +175,6 @@ class CanvasBoard {
     let bounds = event.target.getBoundingClientRect();
     let mouseX = event.clientX - bounds.left;
     mouseX = mouseX * this.canvas.width / bounds.width;
-    this.mouseX = mouseX;
     return Math.floor(mouseX / 100);
   }
 
@@ -172,7 +187,6 @@ class CanvasBoard {
     let bounds = event.target.getBoundingClientRect();
     let mouseY = event.clientY - bounds.top;
     mouseY = mouseY * this.canvas.height / bounds.height;
-    this.mouseY = mouseY;
     return Math.floor(mouseY / 100);
   }
 
@@ -215,7 +229,7 @@ class CanvasBoard {
     }
 
     //Draw highlighted pieces
-    if (this.highlightDiskX != null) {
+    if (this.highlightDiskX !== null) {
       for (let move of this.moves) {
           if (move.landingX === this.highlightDiskX &&
             move.landingY === this.highlightDiskY) {
@@ -317,5 +331,13 @@ class CanvasBoard {
         }
       }
     }
+  }
+
+  /**
+   * Returns the canvas board div element.
+   * @returns {Element|*}
+   */
+  getDiv() {
+    return this.mainDiv;
   }
 }
