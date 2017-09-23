@@ -10,6 +10,7 @@ class CanvasBoard {
     this.canvas = null;
     this.containerDiv = null;
     this.messageDiv = null;
+    this.scoreDiv = null;
     this.gameDataLogic = new GameLogic();
 
     this.highlightDiskX = null;
@@ -27,7 +28,7 @@ class CanvasBoard {
    * Set the canvas scaling based on the window size.
    */
   windowResize() {
-    if (window.innerWidth > window.innerHeight - 30) {
+    if (window.innerWidth > window.innerHeight - 30 - 30) {
       //Set the canvas to scale by height
       if (!this.canvas.classList.contains('CanvasGreaterWidth')) {
         this.canvas.classList.remove('CanvasGreaterHeight');
@@ -48,6 +49,8 @@ class CanvasBoard {
   setupCanvas() {
     this.messageDiv = document.createElement('div');
     this.messageDiv.className = 'MessageDiv';
+    this.scoreDiv = document.createElement('div');
+    this.scoreDiv.className = 'ScoreDiv';
     this.containerDiv = document.createElement('div');
     this.containerDiv.className = 'ContainerDiv';
     this.canvas = document.createElement('canvas');
@@ -57,6 +60,7 @@ class CanvasBoard {
     this.canvas.width = this.gameDataLogic.state.board[0].length * 100;
     this.canvas.height = this.gameDataLogic.state.board.length * 100;
     this.containerDiv.appendChild(this.canvas);
+    this.mainDiv.appendChild(this.scoreDiv);
     this.mainDiv.appendChild(this.messageDiv);
     this.mainDiv.appendChild(this.containerDiv);
     this.ctx = this.canvas.getContext('2d');
@@ -144,26 +148,36 @@ class CanvasBoard {
     this.messageDiv.innerText = text;
   }
 
+  setScore(text) {
+    this.scoreDiv.innerText = text;
+  }
+
   /**
    * Updates the top message.
    */
   updateGameStatusMessage() {
+    let statusText = '';
     let victory = this.gameDataLogic.checkForVictory();
     if (victory === null) {
       if (this.gameDataLogic.getTurn() === 'b') {
-        this.setMessage('Black\'s Turn');
+        statusText = 'Black\'s Turn';
       } else {
-        this.setMessage('White\'s Turn');
+        statusText = 'White\'s Turn';
       }
     } else {
       if (victory === 'black wins') {
-        this.setMessage('Black has Won!');
+        statusText = 'Black has Won!';
       } else if (victory === 'white wins') {
-        this.setMessage('White has Won!');
+        statusText = 'White has Won!';
       } else {
-        this.setMessage('Draw!');
+        statusText = 'Draw!';
       }
     }
+    let scoreText = 'Black: ' +
+      this.gameDataLogic.getPieceCount('b') + ' - White: ' +
+      this.gameDataLogic.getPieceCount('w');
+    this.setMessage(statusText);
+    this.setScore(scoreText);
   }
 
   /**

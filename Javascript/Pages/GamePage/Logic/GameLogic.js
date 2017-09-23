@@ -218,6 +218,19 @@ class GameLogic {
     this.state.getBoard()[y][x] = value;
   }
 
+  getPieceCount(piece) {
+    let count = 0;
+    for (let y = 0; y < this.state.getBoard().length; y++) {
+      for (let x = 0; x < this.state.getBoard()[y].length; x++) {
+        let currentPiece = this.getPiece(x, y);
+        if (currentPiece === piece) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
   /** @function ApplyMove
    * A function to apply the selected move to the game.
    */
