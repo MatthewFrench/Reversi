@@ -24,14 +24,14 @@ class ReversiGame {
   /**
    * Switches to the game page.
    */
-  switchToGamePage() {
+  switchToGamePage(showGuidelines, playMode) {
     if (this.currentPage !== null) {
       this.currentPage.hide();
     }
     Utility.RemoveElements(this.mainDiv);
     this.mainDiv.appendChild(this.gamePage.getDiv());
     this.currentPage = this.gamePage;
-    this.gamePage.show();
+    this.gamePage.show(showGuidelines, playMode);
   }
 
   /**

@@ -9,6 +9,12 @@ Direction = {
   DownRight: 7
 };
 
+PlayMode = {
+  PlayerVsPlayer : 0,
+  PlayerVsAI : 1,
+  AIVsAI : 2
+};
+
 /**
  * Handles manipulation of game data.
  */

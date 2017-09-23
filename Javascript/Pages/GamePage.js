@@ -10,8 +10,10 @@ class GamePage {
   /**
    * Called when the game page is shown on the screen.
    */
-  show() {
-
+  show(showGuidelines, playMode) {
+    this.canvasBoard.setShowGuidelines(showGuidelines);
+    this.canvasBoard.setPlayMode(playMode);
+    this.canvasBoard.renderBoard();
   }
 
   /**

@@ -20,12 +20,24 @@ class CanvasBoard {
 
     this.flippingPieces = [];
 
+    this.showGuidelines = true;
+    this.playMode = PlayMode.PlayerVsPlayer;
+
     this.existingAnimationRequest = null;
 
     window.addEventListener('resize', Utility.CreateFunction(this, this.windowResize));
     window.requestAnimationFrame(()=>{this.windowResize();});
 
     this.setupCanvas();
+  }
+
+
+  setShowGuidelines(showGuidelines) {
+    this.showGuidelines = showGuidelines;
+  }
+
+  setPlayMode(playMode) {
+    this.playMode = playMode;
   }
 
   /**
@@ -223,8 +235,7 @@ class CanvasBoard {
     this.ctx.fillStyle = 'lightgray';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    //Draw possible moves
-
+    //Draw grid
     for (let y = 0; y < this.gameDataLogic.state.board.length; y+=1) {
       for (let x = 0; x < this.gameDataLogic.state.board[y].length; x += 1) {
         this.ctx.strokeStyle = 'white';
@@ -243,7 +254,6 @@ class CanvasBoard {
             if (flip.x === x && flip.y === y) {
               isFlipping = true;
               flippingPiece = flip;
-
               break;
             }
           }
@@ -319,80 +329,82 @@ class CanvasBoard {
     }
 
     //Draw the possible move outlines on top of pieces
-    for (let y = 0; y < this.gameDataLogic.state.board.length; y+=1) {
-      for (let x = 0; x < this.gameDataLogic.state.board[y].length; x += 1) {
-        for (let move of this.moves) {
-          if (move.landingX === x && move.landingY === y) {
-            this.ctx.lineWidth = 10.0;
-            this.ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)';
-            this.ctx.beginPath();
-            this.ctx.arc(move.landingX * 100 + 50, move.landingY * 100 + 50, 30, 35, 0, Math.PI * 2);
-            this.ctx.stroke();
+    if (this.showGuidelines) {
+      for (let y = 0; y < this.gameDataLogic.state.board.length; y += 1) {
+        for (let x = 0; x < this.gameDataLogic.state.board[y].length; x += 1) {
+          for (let move of this.moves) {
+            if (move.landingX === x && move.landingY === y) {
+              this.ctx.lineWidth = 10.0;
+              this.ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)';
+              this.ctx.beginPath();
+              this.ctx.arc(move.landingX * 100 + 50, move.landingY * 100 + 50, 30, 35, 0, Math.PI * 2);
+              this.ctx.stroke();
 
-            this.ctx.beginPath();
-            this.ctx.arc(move.originX * 100 + 50, move.originY * 100 + 50, 35, 30, 0, Math.PI * 2);
-            this.ctx.stroke();
+              this.ctx.beginPath();
+              this.ctx.arc(move.originX * 100 + 50, move.originY * 100 + 50, 35, 30, 0, Math.PI * 2);
+              this.ctx.stroke();
 
-            //Draw direction
-            let originX = move.originX;
-            let originY = move.originY;
-            let landingX = move.landingX;
-            let landingY = move.landingY;
-            let originXOffset = 0;
-            let originYOffset = 0;
-            let landingXOffset = 0;
-            let landingYOffset = 0;
-            let circleRadius = 30;
-            let circleRadiusDiagonal = 30 / Math.sqrt(2);
-            switch (move.direction) {
-              case Direction.Left:
-                originXOffset -= circleRadius;
-                landingXOffset += circleRadius;
-                break;
-              case Direction.Right:
-                originXOffset += circleRadius;
-                landingXOffset -= circleRadius;
-                break;
-              case Direction.Up:
-                originYOffset -= circleRadius;
-                landingYOffset += circleRadius;
-                break;
-              case Direction.Down:
-                originYOffset += circleRadius;
-                landingYOffset -= circleRadius;
-                break;
-              case Direction.UpLeft:
-                originXOffset -= circleRadiusDiagonal;
-                landingXOffset += circleRadiusDiagonal;
-                originYOffset -= circleRadiusDiagonal;
-                landingYOffset += circleRadiusDiagonal;
-                break;
-              case Direction.UpRight:
-                originXOffset += circleRadiusDiagonal;
-                landingXOffset -= circleRadiusDiagonal;
-                originYOffset -= circleRadiusDiagonal;
-                landingYOffset += circleRadiusDiagonal;
-                break;
-              case Direction.DownLeft:
-                originXOffset -= circleRadiusDiagonal;
-                landingXOffset += circleRadiusDiagonal;
-                originYOffset += circleRadiusDiagonal;
-                landingYOffset -= circleRadiusDiagonal;
-                break;
-              case Direction.DownRight:
-                originXOffset += circleRadiusDiagonal;
-                landingXOffset -= circleRadiusDiagonal;
-                originYOffset += circleRadiusDiagonal;
-                landingYOffset -= circleRadiusDiagonal;
-                break;
+              //Draw direction
+              let originX = move.originX;
+              let originY = move.originY;
+              let landingX = move.landingX;
+              let landingY = move.landingY;
+              let originXOffset = 0;
+              let originYOffset = 0;
+              let landingXOffset = 0;
+              let landingYOffset = 0;
+              let circleRadius = 30;
+              let circleRadiusDiagonal = 30 / Math.sqrt(2);
+              switch (move.direction) {
+                case Direction.Left:
+                  originXOffset -= circleRadius;
+                  landingXOffset += circleRadius;
+                  break;
+                case Direction.Right:
+                  originXOffset += circleRadius;
+                  landingXOffset -= circleRadius;
+                  break;
+                case Direction.Up:
+                  originYOffset -= circleRadius;
+                  landingYOffset += circleRadius;
+                  break;
+                case Direction.Down:
+                  originYOffset += circleRadius;
+                  landingYOffset -= circleRadius;
+                  break;
+                case Direction.UpLeft:
+                  originXOffset -= circleRadiusDiagonal;
+                  landingXOffset += circleRadiusDiagonal;
+                  originYOffset -= circleRadiusDiagonal;
+                  landingYOffset += circleRadiusDiagonal;
+                  break;
+                case Direction.UpRight:
+                  originXOffset += circleRadiusDiagonal;
+                  landingXOffset -= circleRadiusDiagonal;
+                  originYOffset -= circleRadiusDiagonal;
+                  landingYOffset += circleRadiusDiagonal;
+                  break;
+                case Direction.DownLeft:
+                  originXOffset -= circleRadiusDiagonal;
+                  landingXOffset += circleRadiusDiagonal;
+                  originYOffset += circleRadiusDiagonal;
+                  landingYOffset -= circleRadiusDiagonal;
+                  break;
+                case Direction.DownRight:
+                  originXOffset += circleRadiusDiagonal;
+                  landingXOffset -= circleRadiusDiagonal;
+                  originYOffset += circleRadiusDiagonal;
+                  landingYOffset -= circleRadiusDiagonal;
+                  break;
+              }
+              this.ctx.beginPath();
+              this.ctx.lineWidth = 10.0;
+              this.ctx.moveTo(originX * 100 + 50 + originXOffset,
+                originY * 100 + 50 + originYOffset);
+              this.ctx.lineTo(landingX * 100 + 50 + landingXOffset,
+                landingY * 100 + 50 + landingYOffset);
+              this.ctx.stroke();
             }
-            this.ctx.beginPath();
-            this.ctx.lineWidth = 10.0;
-            this.ctx.moveTo(originX * 100 + 50 + originXOffset,
-              originY * 100 + 50 + originYOffset);
-            this.ctx.lineTo(landingX * 100 + 50 + landingXOffset,
-              landingY * 100 + 50 + landingYOffset);
-            this.ctx.stroke();
           }
         }
       }
