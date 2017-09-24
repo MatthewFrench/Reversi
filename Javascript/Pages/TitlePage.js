@@ -22,7 +22,7 @@ class TitlePage {
     this.playButtonDiv.className = 'PlayButton';
     this.playButtonDiv.innerText = 'Play';
     this.playButtonDiv.addEventListener('mouseup', ()=>{this.playButtonClicked();});
-    this.playButtonDiv.addEventListener('touchend', ()=>{this.playButtonClicked();});
+    this.playButtonDiv.addEventListener('touchend', (e)=>{this.playButtonClicked();e.preventDefault();});
     this.mainDiv.appendChild(this.playButtonDiv);
 
     //Create guideline buttons
@@ -30,32 +30,32 @@ class TitlePage {
     this.withGuidelineDiv.className = 'WithGuidelineButton';
     this.withGuidelineDiv.innerText = 'With Guidelines';
     this.withGuidelineDiv.addEventListener('mouseup', ()=>{this.withGuidelinesClicked();});
-    this.withGuidelineDiv.addEventListener('touchend', ()=>{this.withGuidelinesClicked();});
+    this.withGuidelineDiv.addEventListener('touchend', (e)=>{this.withGuidelinesClicked();e.preventDefault();});
 
     this.withoutGuidelineDiv = document.createElement('div');
     this.withoutGuidelineDiv.className = 'WithoutGuidelineButton';
     this.withoutGuidelineDiv.innerText = 'Without Guidelines';
     this.withoutGuidelineDiv.addEventListener('mouseup', ()=>{this.withoutGuidelinesClicked();});
-    this.withoutGuidelineDiv.addEventListener('touchend', ()=>{this.withoutGuidelinesClicked();});
+    this.withoutGuidelineDiv.addEventListener('touchend', (e)=>{this.withoutGuidelinesClicked();e.preventDefault();});
 
     //Create play with buttons
     this.playPVP = document.createElement('div');
     this.playPVP.className = 'PlayPVPButton';
     this.playPVP.innerText = 'Player v Player';
     this.playPVP.addEventListener('mouseup', ()=>{this.playPVPButtonClicked();});
-    this.playPVP.addEventListener('touchend', ()=>{this.playPVPButtonClicked();});
+    this.playPVP.addEventListener('touchend', (e)=>{this.playPVPButtonClicked();e.preventDefault();});
 
     this.playPlayerAgainstAI = document.createElement('div');
     this.playPlayerAgainstAI.className = 'PlayPlayerAgainstAIButton';
     this.playPlayerAgainstAI.innerText = 'Player v AI';
     this.playPlayerAgainstAI.addEventListener('mouseup', ()=>{this.playPlayerAgainstAIButtonClicked();});
-    this.playPlayerAgainstAI.addEventListener('touchend', ()=>{this.playPlayerAgainstAIButtonClicked();});
+    this.playPlayerAgainstAI.addEventListener('touchend', (e)=>{this.playPlayerAgainstAIButtonClicked();e.preventDefault();});
 
     this.playAIAgainstAI = document.createElement('div');
     this.playAIAgainstAI.className = 'PlayAIAgainstAIButton';
     this.playAIAgainstAI.innerText = 'AI v AI';
     this.playAIAgainstAI.addEventListener('mouseup', ()=>{this.playAIAgainstAIButtonClicked();});
-    this.playAIAgainstAI.addEventListener('touchend', ()=>{this.playAIAgainstAIButtonClicked();});
+    this.playAIAgainstAI.addEventListener('touchend', (e)=>{this.playAIAgainstAIButtonClicked();e.preventDefault();});
 
     this.showGuideline = false;
     this.playMode = 0;

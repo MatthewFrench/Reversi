@@ -254,10 +254,6 @@ class CanvasBoard {
     let x = this.getCanvasMouseX(event);
     let y = this.getCanvasMouseY(event);
 
-    this.highlightDiskX = null;
-    this.highlightDiskY = null;
-
-
     let allowDoStuff = false;
     if (this.playMode === PlayMode.PlayerVsPlayer) {
       allowDoStuff = true;
@@ -266,6 +262,8 @@ class CanvasBoard {
       allowDoStuff = true;
     }
     if (allowDoStuff) {
+      this.highlightDiskX = null;
+      this.highlightDiskY = null;
       for (let move of this.moves) {
         if (move.landingX === x && move.landingY === y) {
           this.highlightDiskX = x;
