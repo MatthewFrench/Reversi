@@ -48,8 +48,8 @@
     height: 40px;
     padding-left: 5px;
     padding-right: 5px;
-    top: calc(75% - 20px);
-    left: calc(50% - 235px/2 - 10px - 140px);
+    top: calc(75% - 20px + 25px);
+    left: calc(50% - 235px/2);
     cursor: pointer;
 }
 .WithoutGuidelineButton {
@@ -61,8 +61,8 @@
     height: 40px;
     padding-left: 5px;
     padding-right: 5px;
-    top: calc(75% - 20px);
-    left: calc(50% - 280px/2 - 10px + 140px);
+    top: calc(75% - 20px - 25px);
+    left: calc(50% - 280px/2);
     cursor: pointer;
 }
 .PlayPVPButton {
@@ -74,8 +74,8 @@
     height: 40px;
     padding-left: 5px;
     padding-right: 5px;
-    top: calc(75% - 20px);
-    left: calc(50% - 220px/2 - 10px - 195px + 20px);
+    top: calc(75% - 20px - 50px);
+    left: calc(50% - 220px/2);
     cursor: pointer;
 }
 .PlayPlayerAgainstAIButton {
@@ -88,7 +88,7 @@
     padding-left: 5px;
     padding-right: 5px;
     top: calc(75% - 20px);
-    left: calc(50% - 180px/2 - 10px + 30px + 20px);
+    left: calc(50% - 180px/2);
     cursor: pointer;
 }
 .PlayAIAgainstAIButton {
@@ -100,7 +100,7 @@
     height: 40px;
     padding-left: 5px;
     padding-right: 5px;
-    top: calc(75% - 20px);
-    left: calc(50% - 115px/2 - 10px + 195px + 20px);
+    top: calc(75% - 20px + 50px);
+    left: calc(50% - 115px/2);
     cursor: pointer;
 }

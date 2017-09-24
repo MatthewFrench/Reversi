@@ -102,22 +102,7 @@ class CanvasBoard {
    * @param event
    */
   mouseDown(event) {
-    let x = this.getCanvasMouseX(event);
-    let y = this.getCanvasMouseY(event);
 
-    let allowDoStuff = false;
-    if (this.playMode === PlayMode.PlayerVsPlayer) {
-      allowDoStuff = true;
-    }
-    if (this.playMode === PlayMode.PlayerVsAI && this.gameDataLogic.getTurn() === 'b') {
-      allowDoStuff = true;
-    }
-    if (allowDoStuff) {
-      this.applyMovesOn(x, y);
-    }
-
-    //Redraw
-    this.renderBoard();
   }
 
   applyMovesOn(x, y) {
@@ -298,6 +283,20 @@ class CanvasBoard {
    * @param event
    */
   mouseUp() {
+    let x = this.getCanvasMouseX(event);
+    let y = this.getCanvasMouseY(event);
+
+    let allowDoStuff = false;
+    if (this.playMode === PlayMode.PlayerVsPlayer) {
+      allowDoStuff = true;
+    }
+    if (this.playMode === PlayMode.PlayerVsAI && this.gameDataLogic.getTurn() === 'b') {
+      allowDoStuff = true;
+    }
+    if (allowDoStuff) {
+      this.applyMovesOn(x, y);
+    }
+
     //Redraw
     this.renderBoard();
   }
