@@ -31,6 +31,27 @@ class CanvasBoard {
     this.setupCanvas();
   }
 
+  /**
+   * Reset the board and game
+   */
+  reset() {
+    this.gameDataLogic = new GameLogic();
+
+    this.highlightDiskX = null;
+    this.highlightDiskY = null;
+
+    this.moves = [];
+
+    this.flippingPieces = [];
+
+    this.windowResize();
+
+    this.getMoves();
+
+    this.renderBoard();
+
+    this.updateGameStatusMessage();
+  }
 
   setShowGuidelines(showGuidelines) {
     this.showGuidelines = showGuidelines;
@@ -80,14 +101,6 @@ class CanvasBoard {
     this.mainDiv.appendChild(this.messageDiv);
     this.mainDiv.appendChild(this.containerDiv);
     this.ctx = this.canvas.getContext('2d');
-
-    this.windowResize();
-
-    this.getMoves();
-
-    this.renderBoard();
-
-    this.updateGameStatusMessage();
   }
 
   /**
@@ -331,6 +344,7 @@ class CanvasBoard {
       } else {
         statusText = 'Draw!';
       }
+      this.gamePage.showRestartButton();
     }
     let scoreText = 'Black: ' +
       this.gameDataLogic.getPieceCount('b') + ' - White: ' +

@@ -55,6 +55,17 @@ class TitlePage {
     this.playMode = 0;
   }
 
+  reset() {
+    this.mainDiv.appendChild(this.playButtonDiv);
+
+    this.withGuidelineDiv.remove();
+    this.withoutGuidelineDiv.remove();
+
+    this.playPVP.remove();
+    this.playPlayerAgainstAI.remove();
+    this.playAIAgainstAI.remove();
+  }
+
   /**
    * Handles play button click.
    */
@@ -109,7 +120,7 @@ class TitlePage {
    * Called when the title page is shown.
    */
   show() {
-
+    this.reset();
   }
 
   /**
