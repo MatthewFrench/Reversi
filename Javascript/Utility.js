@@ -20,4 +20,7 @@ class Utility {
       node.removeChild(node.firstChild);
     }
   }
+
+  static IsOdd(num) { return (num % 2) === 1;}
+  static IsEven(num) { return (num % 2) === 0;}
 }

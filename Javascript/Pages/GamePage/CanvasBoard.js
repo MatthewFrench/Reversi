@@ -161,7 +161,11 @@ class CanvasBoard {
     let bestLandingX = -1;
     let bestLandingY = -1;
     let bestCaptureCount = 0;
+    let gridMiddleY = this.gameDataLogic.state.board.length / 2;
+    let height = this.gameDataLogic.state.board.length;
     for (let y = 0; y < this.gameDataLogic.state.board.length; y+=1) {
+      let gridMiddleX = this.gameDataLogic.state.board[y].length / 2;
+      let width = this.gameDataLogic.state.board[y].length;
       for (let x = 0; x < this.gameDataLogic.state.board[y].length; x += 1) {
         let captureCount = 0;
         for (let move of this.moves) {
@@ -169,21 +173,64 @@ class CanvasBoard {
             captureCount += 1;
           }
         }
-        //If there is a corner piece, take it like a mad man.
-        if (captureCount > 0 && ((x === 0 && y ===0) ||
+        if (captureCount > 0) {
+          //Give a slight count increase to certain spots that make it
+          //easier to get a corner.
+          //These spots are the spots that are same even/odd
+          //status as the corner that is closest.
+          if ((x >= gridMiddleX && Utility.IsOdd(x-gridMiddleX)) ||
+              (x < gridMiddleX && Utility.IsEven(gridMiddleX-x)) ||
+              (y >= gridMiddleY && Utility.IsOdd(y-gridMiddleY)) ||
+              (y < gridMiddleY && Utility.IsEven(gridMiddleY-y))) {
+            captureCount += 0.1;
+          }
+
+          //If there is a corner piece, take it like a mad man.
+          if ((x === 0 && y ===0) ||
             (x === 0 &&
-                y === this.gameDataLogic.state.board.length - 1) ||
+              y === this.gameDataLogic.state.board.length - 1) ||
             (x === this.gameDataLogic.state.board[0].length - 1 &&
-                y === 0) ||
+              y === 0) ||
             (x === this.gameDataLogic.state.board[0].length - 1 &&
-                y === this.gameDataLogic.state.board.length - 1))) {
-          bestCaptureCount = 15;
-          bestLandingX = x;
-          bestLandingY = y;
-        } else {
+              y === this.gameDataLogic.state.board.length - 1)) {
+            //Give a higher priority weight to corner pieces
+            bestCaptureCount = captureCount * 2 + 10;
+            bestLandingX = x;
+            bestLandingY = y;
+            continue;
+          }
+
+          //If this piece is next to an empty corner, don't take it.
+          // 0 1 2 3 <--- Try not to take 1, give lowest priority
+          //| | |X|O
+          if (((x !== 0 || y !== 0) && x <= 1 && y <= 1 && this.pieceIsEmpty(0,0)) ||
+              ((x !== 0 || y !== (height-1)) && x <= 1 && y >= (height-1)-1 && this.pieceIsEmpty(0,height-1)) ||
+            ((x !== (width - 1) || y !== 0) && x >= (width - 1)-1 && y <= 1 && this.pieceIsEmpty(width-1 ,0)) ||
+            ((x !== (width - 1) || y !== (height - 1))
+              && x >= (width - 1)-1 && y >= (height - 1)-1 && this.pieceIsEmpty(width-1,height-1))) {
+            //Give lowest capture count so it only happens when it must.
+            captureCount /= 10.0;
+          }
+
+          //Take piece that is close to the corner but with space between
+          // 0 1 2 3 <--- Give priority to 2
+          //| | | |X
+          if (((x > 1 || y > 1) && x < 3 && y < 3 && this.pieceIsEmpty(0,0)) ||
+            ((x < width-2 || y < height-2) && x > width-4 && y > height-4 && this.pieceIsEmpty(width-1,height-1)) ||
+            ((x > 1 || y < height-2) && x < 3 && y > height-4 && this.pieceIsEmpty(0,height-1)) ||
+            ((x < width-2 || y > 1) && x > width-4 && y < 3 && this.pieceIsEmpty(width-1,0))) {
+            //Give higher priority
+            captureCount *= 1.5 + 2;
+          }
+
+          //Add code that checks if playing a move opens a corner to the enemy,
+          //If it does, make that lowest priority.
+
+
+          //Just choose the highest capture count piece
           //Add a slight randomness so no AI choice is the same.
-          if ((captureCount >= bestCaptureCount && Math.random() > 0.5) ||
-            captureCount > bestCaptureCount) {
+          if (captureCount > bestCaptureCount ||
+            (captureCount === bestCaptureCount && Math.random() > 0.5)) {
             bestCaptureCount = captureCount;
             bestLandingX = x;
             bestLandingY = y;
@@ -207,6 +254,10 @@ class CanvasBoard {
 
     //Redraw
     this.renderBoard();
+  }
+
+  pieceIsEmpty(x, y) {
+    return this.gameDataLogic.getPiece(x, y) === null;
   }
 
   /**
